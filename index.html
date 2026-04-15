@@ -4,13 +4,119 @@
   <meta charset="UTF-8">
   <title>Trah Sukata</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Custom Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.jsdelivr.net/npm/@balkangraph/familytree.js@latest/familytree.min.js"></script>
+  
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; }
-    #tree { width: 100vw; height: 100vh; }
-    .ft-menu-row { margin-bottom: 5px; }
-    .ft-menu-label { font-weight: bold; width: 120px; display: inline-block; }
-    .ft-menu-value { display: inline-block; }
+    :root {
+      --bg-color: #F4F0EC; /* Parchment */
+      --primary-color: #3D0C02; /* Rich Mahogany */
+      --text-color: #2D2D2D;
+      --secondary-text: #666;
+      --font-header: 'Nunito', sans-serif;
+      --font-body: 'Lora', serif;
+      --border-color: #E0D8D0;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+    }
+
+    html, body { 
+      height: 100%; 
+      margin: 0; 
+      padding: 0; 
+      background-color: var(--bg-color);
+      font-family: var(--font-body);
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    #tree { 
+      width: 100vw; 
+      height: 100vh; 
+    }
+
+    /* FamilyTree.js Overrides */
+    .bjs-tree {
+      background-color: var(--bg-color) !important;
+    }
+
+    /* Modal Styling - Mobile First */
+    .ft-menu-container {
+      padding: var(--spacing-md);
+    }
+
+    .ft-menu-row { 
+      margin-bottom: var(--spacing-md); 
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: var(--spacing-sm);
+    }
+
+    .ft-menu-label { 
+      font-family: var(--font-header);
+      font-weight: 700; 
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary-color);
+      margin-bottom: 4px;
+    }
+
+    .ft-menu-value { 
+      font-size: 1.1rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    /* Desktop/Tablet Refinement */
+    @media (min-width: 600px) {
+      .ft-menu-row {
+        flex-direction: row;
+        align-items: baseline;
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .ft-menu-label {
+        width: 160px;
+        min-width: 160px;
+        margin-bottom: 0;
+        font-size: 0.85rem;
+        text-transform: none;
+        letter-spacing: normal;
+        color: var(--secondary-text);
+      }
+
+      .ft-menu-value {
+        font-size: 1rem;
+      }
+    }
+
+    /* Custom Modal Header */
+    .bjs-modal-title {
+      font-family: var(--font-header) !important;
+      font-weight: 800 !important;
+      color: var(--primary-color) !important;
+    }
+
+    /* Error Message Styling */
+    .error-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: var(--spacing-lg);
+      font-family: var(--font-header);
+    }
   </style>
 </head>
 <body>
@@ -32,19 +138,31 @@
     }
 
     function showDetailModal(d) {
+      const rows = [
+        { label: "Nama Lengkap", value: d.nama_lengkap },
+        { label: "Nama Panggilan", value: d.nama_panggilan },
+        { label: "Gender", value: d.gender ? (genderMap[d.gender] || d.gender) : null },
+        { label: "Domisili", value: d.domisili },
+        { label: "Tahun Lahir", value: d.tahun_lahir },
+        { label: "Usia Saat Ini", value: d.usia_saat_ini },
+        { label: "Tahun Wafat", value: d.tahun_wafat },
+        { label: "Usia Saat Wafat", value: d.usia_saat_wafat },
+        { label: "Nama Bapak", value: d.nama_bapak },
+        { label: "Nama Ibu", value: d.nama_ibu },
+        { label: "Nama Pasangan", value: d.nama_pasangan }
+      ];
+
       const infoHtml = `
-        <div class="ft-menu-row"><span class="ft-menu-label">Nama Lengkap:</span> <span class="ft-menu-value">${d.nama_lengkap || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Nama Panggilan:</span> <span class="ft-menu-value">${d.nama_panggilan || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Gender:</span> <span class="ft-menu-value">${d.gender ? (genderMap[d.gender] || d.gender) : "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Domisili:</span> <span class="ft-menu-value">${d.domisili || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Tahun Lahir:</span> <span class="ft-menu-value">${d.tahun_lahir || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Usia Saat Ini:</span> <span class="ft-menu-value">${d.usia_saat_ini || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Tahun Wafat:</span> <span class="ft-menu-value">${d.tahun_wafat || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Usia Saat Wafat:</span> <span class="ft-menu-value">${d.usia_saat_wafat || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Nama Bapak:</span> <span class="ft-menu-value">${d.nama_bapak || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Nama Ibu:</span> <span class="ft-menu-value">${d.nama_ibu || "-"}</span></div>
-        <div class="ft-menu-row"><span class="ft-menu-label">Nama Pasangan:</span> <span class="ft-menu-value">${d.nama_pasangan || "-"}</span></div>
+        <div class="ft-menu-container">
+          ${rows.map(row => `
+            <div class="ft-menu-row">
+              <span class="ft-menu-label">${row.label}</span>
+              <span class="ft-menu-value">${row.value || "-"}</span>
+            </div>
+          `).join('')}
+        </div>
       `;
+
       FamilyTree.menu.showModal({
         title: "Detail Anggota Keluarga",
         html: infoHtml
@@ -66,7 +184,6 @@
             name: displayName,
             gender: genderFT,
             img: foto,
-            // Semua detail langsung jadi property node (bukan objek dataDetail)
             nama_lengkap: item.nama_lengkap,
             nama_panggilan: item.nama_panggilan,
             domisili: item.domisili_terakhir,
@@ -76,19 +193,21 @@
             usia_saat_wafat: item.usia_saat_wafat,
             nama_bapak: item.nama_bapak,
             nama_ibu: item.nama_ibu,
-            nama_pasangan: item.pasangan,// untuk modal custom, supaya mapping dengan genderMap
+            nama_pasangan: item.pasangan,
           };
         });
 
         const family = new FamilyTree(document.getElementById("tree"), {
           template: "john",
           mode: "light",
+          mouseWheel: FamilyTree.action.zoom,
+          pinch: true,
+          scaleInitial: FamilyTree.match.boundary,
           orientation: FamilyTree.orientation.left,
           nodeBinding: {
             field_0: "name",
             field_1: "nama_lengkap",
             img_0: "img"
-            // Tambahkan field_x lainnya jika ingin tampil di panel kanan
           },
           nodeMenu: {
             details: { text: "Detail Anggota" }
@@ -108,7 +227,11 @@
         family.load(nodes);
       })
       .catch(err => {
-        document.getElementById("tree").innerHTML = "<b>Gagal memuat data keluarga.<br>Periksa koneksi atau endpoint.</b>";
+        document.getElementById("tree").innerHTML = `
+          <div class="error-container">
+            <b>Gagal memuat data keluarga.<br>Periksa koneksi atau endpoint.</b>
+          </div>
+        `;
         console.error(err);
       });
   </script>
