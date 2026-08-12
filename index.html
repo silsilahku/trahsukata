@@ -64,8 +64,9 @@
       --node-avatar-female: var(--female-avatar);
       --node-label: var(--heading);
       --node-meta: var(--muted);
-      --node-status: var(--primary-strong);
-      --node-deceased: var(--muted-2);
+      --node-status-alive: var(--primary-strong);
+      --node-status-deceased: #945568;
+      --node-status-unknown: var(--muted-2);
       --node-border: var(--line);
       --node-shadow: rgba(45, 45, 45, .08);
     }
@@ -383,8 +384,16 @@
       fill: var(--node-avatar-female);
     }
 
-    #tree .node.female .alam-card-status {
-      fill: #945568;
+    #tree .node.is-alive .alam-card-status {
+      fill: var(--node-status-alive);
+    }
+
+    #tree .node.is-deceased .alam-card-status {
+      fill: var(--node-status-deceased);
+    }
+
+    #tree .node.is-unknown .alam-card-status {
+      fill: var(--node-status-unknown);
     }
 
     #tree .node:hover .alam-card-surface {
@@ -1552,6 +1561,7 @@
       familyTree: null,
       lastFocusedElement: null,
       activeController: null,
+      statusObserver: null,
       requestId: 0
     };
 
@@ -1607,6 +1617,13 @@
       if (safeValue(person && person.tahun_wafat, "")) return "Sudah berpulang";
       if (safeValue(person && person.tahun_lahir, "")) return "Masih bersama kita";
       return "Belum dicatat";
+    }
+
+    function getStatusClass(person) {
+      const status = formatStatus(person);
+      if (status === "Sudah berpulang") return "is-deceased";
+      if (status === "Masih bersama kita") return "is-alive";
+      return "is-unknown";
     }
 
     function normalizeSearchText(value) {
@@ -1747,6 +1764,10 @@
     }
 
     function destroyFamilyTree() {
+      if (runtime.statusObserver) {
+        runtime.statusObserver.disconnect();
+        runtime.statusObserver = null;
+      }
       if (runtime.familyTree && typeof runtime.familyTree.destroy === "function") {
         try {
           runtime.familyTree.destroy();
@@ -1763,6 +1784,22 @@
         element.setAttribute("aria-hidden", "true");
         element.style.display = "none";
       });
+    }
+
+    function applyStatusClasses() {
+      const peopleById = new Map(runtime.nodes.map((person) => [String(person.id), person]));
+      elements.tree.querySelectorAll("[data-n-id]").forEach((nodeElement) => {
+        const person = peopleById.get(String(nodeElement.dataset.nId));
+        nodeElement.classList.remove("is-alive", "is-deceased", "is-unknown");
+        nodeElement.classList.add(getStatusClass(person));
+      });
+    }
+
+    function observeStatusClasses() {
+      if (runtime.statusObserver) runtime.statusObserver.disconnect();
+      if (typeof MutationObserver === "undefined") return;
+      runtime.statusObserver = new MutationObserver(() => applyStatusClasses());
+      runtime.statusObserver.observe(elements.tree, { childList: true, subtree: true });
     }
 
     function registerAlamCardTemplate() {
@@ -2115,7 +2152,9 @@
         }
 
         initFamilyTree();
+        observeStatusClasses();
         runtime.familyTree.load(runtime.nodes);
+        applyStatusClasses();
         hideFamilyTreeChrome();
         renderState("ready");
         announce(`${runtime.nodes.length} anggota keluarga siap dijelajahi.`);
