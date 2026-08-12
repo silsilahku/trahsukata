@@ -1868,9 +1868,9 @@
       }
 
       if (action === "zoom-in" && typeof runtime.familyTree.zoom === "function") {
-        runtime.familyTree.zoom(.2);
+        runtime.familyTree.zoom(true);
       } else if (action === "zoom-out" && typeof runtime.familyTree.zoom === "function") {
-        runtime.familyTree.zoom(-.2);
+        runtime.familyTree.zoom(false);
       } else if (action === "fit" && typeof runtime.familyTree.fit === "function") {
         runtime.familyTree.fit();
       } else {
