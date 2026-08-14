@@ -4,8 +4,8 @@
 node_modules/
 .env
 .env.local
-# Never commit local Supabase credentials (copy from config.example.js)
-config.js
+# Local environment secrets (do NOT store real secrets here)
+.env.production
 *.log
 .DS_Store
 Thumbs.db
