@@ -10,1344 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/@balkangraph/familytree.js@latest/familytree.min.js"></script>
-
-  <style>
-    :root {
-      --canvas: #F8F8FF;
-      --surface: #FFFFFF;
-      --surface-soft: #F5FBF7;
-      --surface-tint: #F1FAF4;
-      --ink: #2D2D2D;
-      --heading: #1F4933;
-      --primary: #2E8B57;
-      --primary-strong: #246B43;
-      --primary-soft: #D9EFE0;
-      --muted: #668071;
-      --muted-2: #789184;
-      --line: #DDEBE2;
-      --line-strong: #B7D5C2;
-      --accent: #E5AA70;
-      --accent-soft: #FFF3E4;
-      --female-avatar: #F7E5E8;
-      --male-avatar: #E6F3EA;
-      --gold-avatar: #F9EBDD;
-      --danger-surface: #FFF6F5;
-      --danger-line: #F2C7C2;
-      --danger-ink: #9F3F35;
-      --font-heading: 'Outfit', sans-serif;
-      --font-body: 'Atkinson Hyperlegible', sans-serif;
-      --space-1: 4px;
-      --space-2: 8px;
-      --space-3: 12px;
-      --space-4: 16px;
-      --space-5: 20px;
-      --space-6: 24px;
-      --space-8: 32px;
-      --space-10: 40px;
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --radius-xl: 24px;
-      --radius-stage: 26px;
-      --control-size: 48px;
-      --shadow-soft: 0 2px 12px rgba(45, 45, 45, .04);
-      --shadow-card: 0 3px 10px rgba(45, 45, 45, .06), 0 14px 26px rgba(45, 45, 45, .045);
-      --shadow-modal: 0 24px 80px rgba(45, 45, 45, .19);
-      --node-width: 240px;
-      --node-height: 112px;
-      --node-avatar-size: 64px;
-      --node-radius: 16px;
-      --node-accent-male: var(--primary);
-      --node-accent-female: var(--accent);
-      --node-avatar-male: var(--male-avatar);
-      --node-avatar-female: var(--female-avatar);
-      --node-label: var(--heading);
-      --node-meta: var(--muted);
-      --node-status-alive: var(--primary-strong);
-      --node-status-deceased: #945568;
-      --node-status-unknown: var(--muted-2);
-      --node-border: var(--line);
-      --node-shadow: rgba(45, 45, 45, .08);
-    }
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      width: 100%;
-      min-width: 320px;
-      height: 100%;
-      min-height: 100%;
-      margin: 0;
-    }
-
-    body {
-      overflow: hidden;
-      background: var(--canvas);
-      color: var(--ink);
-      font-family: var(--font-body);
-      font-size: 16px;
-      line-height: 1.45;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-
-    button,
-    a {
-      font: inherit;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: .55;
-    }
-
-    button:focus-visible,
-    a:focus-visible,
-    [tabindex]:focus-visible {
-      outline: 3px solid rgba(46, 139, 87, .28);
-      outline-offset: 3px;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    .app-shell {
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
-      width: 100%;
-      min-width: 0;
-      height: 100svh;
-      min-height: 100%;
-      background: var(--canvas);
-    }
-
-    .app-header {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-6);
-      min-height: 76px;
-      padding: 12px clamp(18px, 4vw, 56px);
-      background: var(--surface);
-      border-bottom: 1px solid var(--line);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      min-width: 0;
-    }
-
-    .brand-mark {
-      display: grid;
-      flex: 0 0 auto;
-      place-items: center;
-      width: 48px;
-      height: 48px;
-      color: var(--surface);
-      background: var(--primary);
-      border-radius: var(--radius-md);
-      box-shadow: 0 6px 14px rgba(46, 139, 87, .18);
-      font-size: 24px;
-    }
-
-    .brand-copy {
-      min-width: 0;
-    }
-
-    .brand-title {
-      margin: 0;
-      overflow: hidden;
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: clamp(18px, 2vw, 22px);
-      font-weight: 700;
-      line-height: 1.1;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .brand-subtitle {
-      margin: 3px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: var(--space-3);
-    }
-
-    .member-count,
-    .header-help {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: var(--control-size);
-      border-radius: var(--radius-md);
-      font-family: var(--font-heading);
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .member-count {
-      gap: var(--space-2);
-      padding: 0 16px;
-      color: var(--primary-strong);
-      background: var(--surface-soft);
-      border: 1px solid var(--line);
-      white-space: nowrap;
-    }
-
-    .member-count::before {
-      width: 8px;
-      height: 8px;
-      background: var(--primary);
-      border-radius: 50%;
-      content: '';
-    }
-
-    .header-help {
-      gap: var(--space-2);
-      padding: 0 16px;
-      color: var(--heading);
-      background: var(--surface);
-      border: 1px solid var(--line-strong);
-    }
-
-    .header-help:hover {
-      background: var(--surface-tint);
-    }
-
-    .app-main {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-      min-width: 0;
-      min-height: 0;
-      overflow: hidden;
-      padding: 20px clamp(18px, 4vw, 56px) 24px;
-    }
-
-    .instruction-banner {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      min-height: 54px;
-      padding: 10px 14px;
-      color: var(--heading);
-      background: var(--surface-tint);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-    }
-
-    .instruction-icon {
-      display: grid;
-      flex: 0 0 auto;
-      place-items: center;
-      width: 32px;
-      height: 32px;
-      color: var(--primary-strong);
-      background: var(--primary-soft);
-      border-radius: 10px;
-      font-size: 18px;
-    }
-
-    .instruction-copy {
-      min-width: 0;
-      margin: 0;
-      font-size: 15px;
-    }
-
-    .instruction-close {
-      display: grid;
-      flex: 0 0 auto;
-      place-items: center;
-      width: 40px;
-      height: 40px;
-      margin-left: auto;
-      color: var(--muted);
-      background: transparent;
-      border-radius: 10px;
-      font-size: 18px;
-    }
-
-    .instruction-close:hover {
-      color: var(--heading);
-      background: rgba(46, 139, 87, .08);
-    }
-
-    .tree-stage {
-      position: relative;
-      flex: 1 1 auto;
-      min-width: 0;
-      min-height: 340px;
-      overflow: hidden;
-      isolation: isolate;
-      background-color: #FAFCFD;
-      background-image:
-        linear-gradient(rgba(46, 139, 87, .055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(46, 139, 87, .055) 1px, transparent 1px);
-      background-size: 32px 32px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-stage);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .tree-stage::after {
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      background: rgba(255, 255, 255, .38);
-      content: '';
-    }
-
-    #tree {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      min-height: 0;
-      transition: opacity 180ms ease;
-    }
-
-    .tree-stage.is-loading #tree,
-    .tree-stage.is-empty #tree,
-    .tree-stage.is-error #tree {
-      opacity: .12;
-      pointer-events: none;
-    }
-
-    /* Keep FamilyTree.js from competing with the labeled controls below. */
-    #tree .bjs-toolbar,
-    #tree .bjs-toolbar-container,
-    #tree .bjs-control-bar,
-    #tree .bjs-controlbar,
-    #tree .bft-input,
-    #tree [class*="toolbar"] {
-      display: none !important;
-    }
-
-    #tree .bjs-tree {
-      background: transparent !important;
-    }
-
-    #tree .alam-card {
-      filter: drop-shadow(0 3px 5px var(--node-shadow));
-    }
-
-    #tree .node.male .alam-card-accent {
-      fill: var(--node-accent-male);
-    }
-
-    #tree .node.female .alam-card-accent {
-      fill: var(--node-accent-female);
-    }
-
-    #tree .node.male .alam-card-avatar-well {
-      fill: var(--node-avatar-male);
-    }
-
-    #tree .node.female .alam-card-avatar-well {
-      fill: var(--node-avatar-female);
-    }
-
-    #tree .node.is-alive .alam-card-status {
-      fill: var(--node-status-alive);
-    }
-
-    #tree .node.is-deceased .alam-card-status {
-      fill: var(--node-status-deceased);
-    }
-
-    #tree .node.is-unknown .alam-card-status {
-      fill: var(--node-status-unknown);
-    }
-
-    #tree .node:hover .alam-card-surface {
-      stroke: var(--primary);
-      stroke-width: 2.5;
-    }
-
-    #tree .node.selected .alam-card-surface,
-    #tree .node[data-selected="true"] .alam-card-surface {
-      stroke: var(--accent);
-      stroke-width: 3;
-    }
-
-    .tree-heading {
-      position: absolute;
-      top: 22px;
-      left: 26px;
-      z-index: 3;
-      max-width: min(460px, 48%);
-      pointer-events: none;
-    }
-
-    .tree-eyebrow,
-    .dialog-eyebrow,
-    .detail-label {
-      color: var(--muted);
-      font-family: var(--font-heading);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-
-    .tree-eyebrow {
-      margin: 0 0 4px;
-    }
-
-    .tree-title {
-      margin: 0;
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: clamp(22px, 3vw, 32px);
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    .tree-subtitle {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .last-updated {
-      position: absolute;
-      top: 22px;
-      right: 22px;
-      z-index: 3;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      min-height: 40px;
-      max-width: 220px;
-      padding: 0 12px;
-      color: var(--muted);
-      background: rgba(255, 255, 255, .88);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      box-shadow: var(--shadow-soft);
-      font-family: var(--font-heading);
-      font-size: 12px;
-      font-weight: 600;
-      text-align: right;
-    }
-
-    .last-updated i {
-      color: var(--primary);
-      font-size: 16px;
-    }
-
-    .tree-hint {
-      position: absolute;
-      top: 86px;
-      left: 26px;
-      z-index: 3;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      max-width: calc(100% - 52px);
-      padding: 8px 12px;
-      color: var(--muted);
-      background: rgba(255, 255, 255, .78);
-      border: 1px solid rgba(183, 213, 194, .74);
-      border-radius: 999px;
-      font-size: 13px;
-      pointer-events: none;
-    }
-
-    .tree-hint i {
-      color: var(--primary);
-    }
-
-    .tree-controls {
-      position: absolute;
-      bottom: 18px;
-      left: 50%;
-      z-index: 6;
-      display: flex;
-      align-items: stretch;
-      gap: 6px;
-      padding: 6px;
-      background: rgba(255, 255, 255, .94);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: var(--shadow-card);
-      transform: translateX(-50%);
-    }
-
-    .tree-control {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      min-width: 82px;
-      min-height: 58px;
-      padding: 7px 12px;
-      color: var(--heading);
-      background: var(--surface);
-      border: 1px solid transparent;
-      border-radius: 12px;
-      font-family: var(--font-heading);
-      font-size: 12px;
-      font-weight: 600;
-      line-height: 1.1;
-    }
-
-    .tree-control i {
-      color: var(--primary);
-      font-size: 20px;
-    }
-
-    .tree-control:hover {
-      background: var(--surface-tint);
-      border-color: var(--line-strong);
-    }
-
-    .tree-control--primary {
-      color: var(--surface);
-      background: var(--primary);
-    }
-
-    .tree-control--primary i {
-      color: var(--surface);
-    }
-
-    .tree-control--primary:hover {
-      background: var(--primary-strong);
-      border-color: var(--primary-strong);
-    }
-
-    .async-note {
-      position: absolute;
-      bottom: 18px;
-      left: 18px;
-      z-index: 6;
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      max-width: 250px;
-      padding: 12px 14px;
-      color: var(--heading);
-      background: rgba(255, 255, 255, .95);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      box-shadow: var(--shadow-card);
-    }
-
-    .async-note-icon {
-      display: grid;
-      flex: 0 0 auto;
-      place-items: center;
-      width: 36px;
-      height: 36px;
-      color: var(--primary);
-      background: var(--surface-tint);
-      border-radius: 10px;
-      font-size: 20px;
-    }
-
-    .async-note-copy {
-      min-width: 0;
-    }
-
-    .async-note-title,
-    .async-note-text {
-      margin: 0;
-    }
-
-    .async-note-title {
-      font-family: var(--font-heading);
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .async-note-text {
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .loader-dots {
-      display: inline-flex;
-      gap: 3px;
-      margin-left: 4px;
-      vertical-align: middle;
-    }
-
-    .loader-dots span {
-      display: block;
-      width: 5px;
-      height: 5px;
-      background: var(--primary);
-      border-radius: 50%;
-      animation: dot-bounce 900ms ease-in-out infinite;
-    }
-
-    .loader-dots span:nth-child(2) {
-      animation-delay: 120ms;
-    }
-
-    .loader-dots span:nth-child(3) {
-      animation-delay: 240ms;
-    }
-
-    @keyframes dot-bounce {
-      0%, 70%, 100% { transform: translateY(0); }
-      35% { transform: translateY(-4px); }
-    }
-
-    .tree-state {
-      position: absolute;
-      inset: 0;
-      z-index: 7;
-      display: grid;
-      place-items: center;
-      padding: 120px 20px 96px;
-      background: rgba(248, 248, 255, .42);
-    }
-
-    .state-card {
-      width: min(100%, 390px);
-      padding: 26px;
-      color: var(--heading);
-      background: rgba(255, 255, 255, .97);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-card);
-      text-align: center;
-    }
-
-    .state-icon {
-      display: grid;
-      place-items: center;
-      width: 56px;
-      height: 56px;
-      margin: 0 auto 14px;
-      color: var(--primary);
-      background: var(--primary-soft);
-      border-radius: 16px;
-      font-size: 27px;
-    }
-
-    .state-card--error .state-icon {
-      color: var(--danger-ink);
-      background: var(--danger-surface);
-    }
-
-    .state-title {
-      margin: 0;
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: 22px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-
-    .state-description {
-      margin: 8px auto 0;
-      max-width: 33ch;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .state-skeleton {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      align-items: center;
-      gap: 8px;
-      margin: 0 auto 18px;
-      max-width: 250px;
-      opacity: .7;
-    }
-
-    .skeleton-node {
-      height: 42px;
-      background: linear-gradient(100deg, var(--primary-soft) 30%, #F8FFFA 50%, var(--primary-soft) 70%);
-      background-size: 220% 100%;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      animation: skeleton-shimmer 1.6s linear infinite;
-    }
-
-    .skeleton-node:nth-child(2) {
-      grid-column: 2;
-      height: 50px;
-    }
-
-    .skeleton-node:nth-child(3) {
-      grid-column: 3;
-    }
-
-    @keyframes skeleton-shimmer {
-      from { background-position: 200% 0; }
-      to { background-position: -20% 0; }
-    }
-
-    .state-action {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-2);
-      min-height: 48px;
-      margin-top: 20px;
-      padding: 0 18px;
-      color: var(--surface);
-      background: var(--primary);
-      border-radius: 12px;
-      font-family: var(--font-heading);
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .state-action:hover {
-      background: var(--primary-strong);
-    }
-
-    .dialog-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 40;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: rgba(45, 45, 45, .28);
-    }
-
-    .dialog-card {
-      display: flex;
-      flex-direction: column;
-      width: min(100%, 600px);
-      max-height: min(84svh, 760px);
-      overflow: hidden;
-      background: var(--surface);
-      border: 1px solid rgba(183, 213, 194, .9);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-modal);
-    }
-
-    .dialog-profile {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      align-items: center;
-      gap: var(--space-4);
-      padding: 24px 24px 20px;
-      background: var(--surface-tint);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .profile-avatar,
-    .list-avatar {
-      display: grid;
-      flex: 0 0 auto;
-      place-items: center;
-      overflow: hidden;
-      color: var(--primary-strong);
-      background: var(--male-avatar);
-      border: 1px solid var(--line-strong);
-      font-family: var(--font-heading);
-      font-weight: 700;
-    }
-
-    .profile-avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 20px;
-      font-size: 22px;
-    }
-
-    .profile-avatar--female,
-    .list-avatar--female {
-      color: #945568;
-      background: var(--female-avatar);
-    }
-
-    .profile-avatar img,
-    .list-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .dialog-heading {
-      min-width: 0;
-    }
-
-    .dialog-eyebrow {
-      margin: 0 0 4px;
-      color: var(--primary);
-    }
-
-    .dialog-title {
-      margin: 0;
-      overflow: hidden;
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: clamp(22px, 4vw, 30px);
-      font-weight: 700;
-      line-height: 1.1;
-      text-overflow: ellipsis;
-    }
-
-    .dialog-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 12px;
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .dialog-close {
-      display: grid;
-      flex: 0 0 auto;
-      place-items: center;
-      width: var(--control-size);
-      height: var(--control-size);
-      color: var(--heading);
-      background: var(--surface);
-      border: 1px solid var(--line-strong);
-      border-radius: 12px;
-      font-size: 21px;
-    }
-
-    .dialog-close:hover {
-      background: var(--primary-soft);
-    }
-
-    .dialog-content {
-      overflow: auto;
-      padding: 22px 24px 24px;
-    }
-
-    .dialog-section + .dialog-section {
-      margin-top: 22px;
-      padding-top: 20px;
-      border-top: 1px solid var(--line);
-    }
-
-    .dialog-section-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 12px;
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .dialog-section-title::before {
-      width: 8px;
-      height: 8px;
-      background: var(--primary);
-      border-radius: 50%;
-      content: '';
-    }
-
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .detail-item {
-      min-width: 0;
-      padding: 12px 14px;
-      background: var(--surface-soft);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-    }
-
-    .detail-label {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--muted-2);
-      font-size: 10px;
-      letter-spacing: .09em;
-    }
-
-    .detail-value {
-      display: block;
-      overflow: hidden;
-      color: var(--ink);
-      font-size: 16px;
-      font-weight: 700;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .family-list {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      list-style: none;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-    }
-
-    .family-list li {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 16px;
-      min-height: 48px;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .family-list li:last-child {
-      border-bottom: 0;
-    }
-
-    .family-list-label {
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .family-list-value {
-      color: var(--heading);
-      font-size: 15px;
-      font-weight: 700;
-      text-align: right;
-    }
-
-    .dialog-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-4);
-      padding: 14px 24px;
-      color: var(--muted);
-      background: var(--surface-soft);
-      border-top: 1px solid var(--line);
-      font-size: 14px;
-    }
-
-    .dialog-footer strong {
-      color: var(--primary-strong);
-      font-family: var(--font-heading);
-      font-size: 14px;
-    }
-
-    .list-dialog-card {
-      width: min(100%, 520px);
-    }
-
-    .list-dialog-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-4);
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .member-list-search-wrap {
-      padding: 16px 24px 4px;
-      background: var(--surface);
-    }
-
-    .member-list-search-label {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .member-list-search-control {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .member-list-search-control > i {
-      position: absolute;
-      left: 14px;
-      z-index: 1;
-      color: var(--primary);
-      font-size: 20px;
-      pointer-events: none;
-    }
-
-    #member-list-search {
-      width: 100%;
-      min-height: var(--control-size);
-      padding: 0 14px 0 44px;
-      color: var(--ink);
-      background: var(--surface-soft);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      font-size: 16px;
-    }
-
-    #member-list-search::placeholder {
-      color: var(--muted-2);
-    }
-
-    #member-list-search:hover {
-      border-color: var(--line-strong);
-    }
-
-    #member-list-search:focus {
-      border-color: var(--primary);
-      outline: 3px solid rgba(46, 139, 87, .16);
-      background: var(--surface);
-    }
-
-    .member-list-results {
-      min-height: 20px;
-      margin: 8px 2px 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .list-dialog-title {
-      margin: 0;
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: 22px;
-    }
-
-    .member-list {
-      display: grid;
-      gap: 8px;
-      overflow: auto;
-      max-height: min(48svh, 420px);
-      padding: 8px 24px 24px;
-    }
-
-    .member-list-item {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 12px;
-      min-height: 64px;
-      padding: 8px 12px;
-      color: var(--ink);
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      text-align: left;
-    }
-
-    .member-list-item:hover,
-    .member-list-item.is-keyboard-active,
-    .member-list-item[aria-selected="true"] {
-      background: var(--surface-tint);
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(46, 139, 87, .11);
-    }
-
-    .member-list-empty {
-      display: grid;
-      justify-items: center;
-      gap: 6px;
-      padding: 28px 24px 36px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .member-list-empty-icon {
-      display: grid;
-      place-items: center;
-      width: 52px;
-      height: 52px;
-      margin-bottom: 4px;
-      color: var(--primary);
-      background: var(--primary-soft);
-      border-radius: 16px;
-      font-size: 24px;
-    }
-
-    .member-list-empty h3,
-    .member-list-empty p {
-      margin: 0;
-    }
-
-    .member-list-empty h3 {
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: 18px;
-    }
-
-    .member-list-empty p {
-      max-width: 28ch;
-      font-size: 14px;
-    }
-
-    .list-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      font-size: 14px;
-    }
-
-    .member-list-name {
-      display: block;
-      overflow: hidden;
-      color: var(--heading);
-      font-family: var(--font-heading);
-      font-size: 15px;
-      font-weight: 700;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .member-list-meta {
-      display: block;
-      margin-top: 2px;
-      overflow: hidden;
-      color: var(--muted);
-      font-size: 13px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .member-list-item > i {
-      color: var(--primary);
-      font-size: 18px;
-    }
-
-    .live-region {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    @media (max-width: 900px) {
-      .app-header {
-        padding-inline: 18px;
-      }
-
-      .app-main {
-        padding-inline: 18px;
-      }
-
-      .tree-hint {
-        top: 82px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .app-header {
-        min-width: 0;
-        min-height: 68px;
-        padding: 10px 12px;
-      }
-
-      .brand-mark {
-        width: 44px;
-        height: 44px;
-      }
-
-      .brand-subtitle,
-      .member-count::before {
-        display: none;
-      }
-
-      .member-count {
-        min-height: 44px;
-        padding: 0 10px;
-        font-size: 13px;
-      }
-
-      .header-help {
-        width: 44px;
-        min-height: 44px;
-        padding: 0;
-        font-size: 20px;
-      }
-
-      .header-help span {
-        display: none;
-      }
-
-      .header-actions {
-        min-width: 0;
-      }
-
-      .app-main {
-        gap: 10px;
-        padding: 12px 10px max(12px, env(safe-area-inset-bottom));
-      }
-
-      .instruction-banner {
-        align-items: flex-start;
-        padding: 8px 10px;
-      }
-
-      .instruction-icon {
-        width: 30px;
-        height: 30px;
-      }
-
-      .instruction-copy {
-        padding-top: 4px;
-        font-size: 14px;
-      }
-
-      .tree-stage {
-        min-height: 0;
-        border-radius: 20px;
-      }
-
-      .tree-heading,
-      .tree-hint {
-        display: none;
-      }
-
-      .last-updated {
-        display: none;
-      }
-
-      .last-updated i {
-        font-size: 14px;
-      }
-
-      .tree-controls {
-        right: 10px;
-        bottom: 10px;
-        left: 10px;
-        justify-content: center;
-        transform: none;
-      }
-
-      .tree-control {
-        flex: 1 1 0;
-        min-width: 0;
-        min-height: 54px;
-        padding: 6px 4px;
-        font-size: 11px;
-      }
-
-      .tree-control i {
-        font-size: 18px;
-      }
-
-      .async-note {
-        right: 14px;
-        bottom: 80px;
-        left: 14px;
-        max-width: none;
-      }
-
-      .tree-state {
-        padding: 126px 14px 90px;
-      }
-
-      .state-card {
-        padding: 22px 18px;
-      }
-
-      .dialog-backdrop {
-        align-items: flex-end;
-        padding: 0;
-      }
-
-      .dialog-card,
-      .list-dialog-card {
-        width: 100%;
-        max-height: 86svh;
-        border-right: 0;
-        border-bottom: 0;
-        border-left: 0;
-        border-radius: 22px 22px 0 0;
-      }
-
-      .dialog-profile {
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        padding: 20px 18px 18px;
-      }
-
-      .profile-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
-      }
-
-      .dialog-content {
-        padding: 18px;
-      }
-
-      .detail-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .dialog-footer {
-        padding-inline: 18px;
-      }
-
-      .list-dialog-header {
-        padding: 18px;
-      }
-
-      .member-list-search-wrap {
-        padding: 14px 18px 4px;
-      }
-
-      .member-list {
-        max-height: 52svh;
-        padding: 8px 18px 20px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        scroll-behavior: auto !important;
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: .01ms !important;
-      }
-    }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@balkangraph/familytree.js@1.9.51/familytree.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+   <link rel="icon" href="favicon.ico" sizes="any">
+   <link rel="stylesheet" href="style.css?v=spotlight-v2">
 </head>
 <body>
   <div class="app-shell" id="app-shell">
@@ -1362,6 +29,12 @@
 
       <div class="header-actions">
         <div class="member-count" id="member-count" aria-live="polite">Menyiapkan data</div>
+        <div class="auth-container" id="auth-container">
+          <button class="auth-button" id="login-button" type="button" aria-label="Login admin">
+            <i class="ti ti-login-2" aria-hidden="true"></i>
+            <span>Login</span>
+          </button>
+        </div>
         <button class="header-help" id="help-button" type="button" aria-label="Buka bantuan">
           <i class="ti ti-help-circle" aria-hidden="true"></i>
           <span>Bantuan</span>
@@ -1379,16 +52,6 @@
       </section>
 
       <section class="tree-stage is-loading" id="tree-stage" aria-label="Pohon keluarga Trah Sukata">
-        <div class="tree-heading">
-          <p class="tree-eyebrow">Jelajahi hubungan keluarga</p>
-          <h1 class="tree-title">Pohon keluarga</h1>
-          <p class="tree-subtitle">Telusuri hubungan keluarga dari generasi ke generasi.</p>
-        </div>
-
-        <div class="tree-hint" aria-hidden="true">
-          <i class="ti ti-arrows-move" aria-hidden="true"></i>
-          <span>Geser kanvas untuk melihat cabang lain</span>
-        </div>
 
         <div class="last-updated" id="last-updated" aria-live="polite">
           <i class="ti ti-refresh" aria-hidden="true"></i>
@@ -1443,9 +106,17 @@
         </button>
       </header>
       <div class="dialog-content" id="member-dialog-content"></div>
-      <footer class="dialog-footer">
-        <span>Ketuk kartu lain untuk berpindah.</span>
-        <strong><i class="ti ti-arrow-right" aria-hidden="true"></i> Lihat hubungan</strong>
+      <p class="rel-edit-error" id="member-dialog-delete-error" style="display: none; padding: 0 24px 14px;"></p>
+      <footer class="dialog-footer" id="member-dialog-footer">
+        <button type="button" class="form-button" id="member-dialog-edit-profile" style="display: none;">Edit Profil</button>
+        <button type="button" class="form-button" id="member-dialog-save-profile" style="display: none;">Simpan</button>
+        <button type="button" class="form-button" id="member-dialog-cancel-edit" style="display: none;">Batal</button>
+        <span id="member-dialog-footer-hint">Ketuk kartu lain untuk berpindah.</span>
+        <button type="button" class="form-button" id="member-dialog-save-rel" style="display: none;">Simpan Relasi</button>
+        <button type="button" id="member-dialog-delete-person" style="display: none;" title="Hapus anggota ini" aria-label="Hapus anggota">
+          <i class="ti ti-trash" aria-hidden="true"></i>
+        </button>
+        <strong id="member-dialog-footer-view" style="display: none;"><i class="ti ti-arrow-right" aria-hidden="true"></i> Lihat hubungan</strong>
       </footer>
     </article>
   </div>
@@ -1487,735 +158,213 @@
     </section>
   </div>
 
+  <!-- Login Dialog -->
+  <div class="dialog-backdrop" id="login-dialog" role="dialog" aria-modal="true" aria-labelledby="login-dialog-title" hidden>
+    <article class="dialog-card" tabindex="-1">
+      <header class="dialog-heading" style="padding: var(--space-4);">
+        <h2 id="login-dialog-title" style="margin: 0; font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--heading);">Admin Login</h2>
+        <button class="dialog-close" id="login-dialog-close" type="button" aria-label="Tutup login">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="dialog-content">
+        <form class="admin-form" id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email</label>
+            <input type="email" class="form-input" id="login-email" required placeholder="admin@example.com">
+            <div class="form-error" id="login-email-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <input type="password" class="form-input" id="login-password" required placeholder="Masukkan password">
+            <div class="form-error" id="login-password-error"></div>
+          </div>
+          <div class="form-error" id="login-general-error"></div>
+          <button type="submit" class="form-button" id="login-submit">Login</button>
+        </form>
+      </div>
+    </article>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-panel" class="admin-panel" style="display: none;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <h3 class="admin-panel-title">Admin Panel</h3>
+      <button id="admin-panel-close" class="auth-button" type="button" aria-label="Tutup admin panel">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div style="border-top: 1px solid var(--line); padding-top: var(--space-3);"></div>
+
+    <div>
+      <h4 style="margin: 0 0 var(--space-2) 0; font-family: var(--font-heading); font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--muted);">Kelola Data</h4>
+      <button id="add-profile-button" class="form-button" style="width: 100%;">+ Tambah Anggota</button>
+    </div>
+
+    <div>
+      <button id="manage-relationships-button" class="form-button" style="width: 100%; background: var(--accent); color: var(--heading);">Kelola Relasi</button>
+    </div>
+
+    <div style="border-top: 1px solid var(--line); padding-top: var(--space-3); margin-top: var(--space-3);">
+      <button id="logout-button" class="form-button" style="width: 100%; background: var(--danger-ink);">Logout</button>
+    </div>
+  </div>
+
+  <div class="dialog-backdrop" id="relationships-dialog" role="dialog" aria-modal="true" aria-labelledby="relationships-dialog-title" hidden>
+    <article class="dialog-card" tabindex="-1">
+    <header class="dialog-heading relationship-dialog-header" style="padding: var(--space-4);">
+        <h2 id="relationships-dialog-title" style="margin: 0; font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--heading);">Kelola Relasi</h2>
+        <button class="dialog-close" id="relationships-dialog-close" type="button" aria-label="Tutup kelola relasi">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="dialog-content">
+        <section class="dialog-section" aria-labelledby="add-relationship-title">
+          <h3 class="dialog-section-title" id="add-relationship-title">Tambah Relasi Baru</h3>
+          <form class="admin-form" id="relationship-form" autocomplete="off">
+            <div class="form-group">
+              <label class="form-label" for="rel-person-a">Anggota A</label>
+              <select class="form-select" id="rel-person-a" required>
+                <option value="">Pilih anggota...</option>
+              </select>
+              <div class="form-error" id="rel-person-a-error"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rel-type">Jenis Relasi</label>
+              <select class="form-select" id="rel-type" required>
+                <option value="">Pilih jenis relasi...</option>
+                <option value="spouse">Pasangan (Suami-Istri)</option>
+                <option value="parent_child">Orang tua - Anak</option>
+              </select>
+              <div class="form-error" id="rel-type-error"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rel-person-b">Anggota B</label>
+              <select class="form-select" id="rel-person-b" required>
+                <option value="">Pilih anggota...</option>
+              </select>
+              <div class="form-error" id="rel-person-b-error"></div>
+            </div>
+            <div class="form-error" id="rel-general-error"></div>
+            <button type="submit" class="form-button" id="rel-submit">Tambah Relasi</button>
+          </form>
+        </section>
+
+        <section class="dialog-section" aria-labelledby="existing-relationships-title">
+          <h3 class="dialog-section-title" id="existing-relationships-title">Relasi yang Ada</h3>
+          <div class="rel-search-wrap" role="search">
+            <label class="rel-search-label" for="rel-search-input">Cari relasi</label>
+            <div class="rel-search-control">
+              <i class="ti ti-search" aria-hidden="true"></i>
+              <input id="rel-search-input" type="search" placeholder="Cari nama anggota..." autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+          <div id="relationships-list"></div>
+        </section>
+      </div>
+    </article>
+  </div>
+
+  <!-- Add Profile Dialog -->
+  <div class="dialog-backdrop" id="add-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="add-profile-dialog-title" hidden>
+    <article class="dialog-card" tabindex="-1">
+      <header class="dialog-heading" style="padding: var(--space-4);">
+        <h2 id="add-profile-dialog-title" style="margin: 0; font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--heading);">Tambah Anggota Baru</h2>
+        <button class="dialog-close" id="add-profile-dialog-close" type="button" aria-label="Tutup tambah anggota">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="dialog-content">
+        <form class="admin-form" id="add-profile-form" autocomplete="off">
+          <div class="form-group">
+            <label class="form-label" for="new-profile-nama-lengkap">Nama lengkap <span style="color: var(--danger-ink);">*</span></label>
+            <input type="text" class="form-input" id="new-profile-nama-lengkap" required placeholder="Contoh: Ahmad Sukata">
+            <div class="form-error" id="new-profile-nama-lengkap-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-profile-nama-panggilan">Nama panggilan</label>
+            <input type="text" class="form-input" id="new-profile-nama-panggilan" placeholder="Contoh: Ahmad">
+            <div class="form-error" id="new-profile-nama-panggilan-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-profile-gender">Jenis kelamin <span style="color: var(--danger-ink);">*</span></label>
+            <select class="form-select" id="new-profile-gender" required>
+              <option value="">Pilih jenis kelamin...</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+            <div class="form-error" id="new-profile-gender-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-profile-tahun-lahir">Tahun lahir</label>
+            <input type="number" class="form-input" id="new-profile-tahun-lahir" placeholder="Contoh: 1970" min="1900" max="2100">
+            <div class="form-error" id="new-profile-tahun-lahir-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-profile-tahun-wafat">Tahun wafat</label>
+            <input type="number" class="form-input" id="new-profile-tahun-wafat" placeholder="Kosongkan jika masih hidup" min="1900" max="2100">
+            <div class="form-error" id="new-profile-tahun-wafat-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-profile-domisili">Domisili terakhir</label>
+            <input type="text" class="form-input" id="new-profile-domisili" placeholder="Contoh: Jakarta">
+            <div class="form-error" id="new-profile-domisili-error"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-profile-bio">Bio</label>
+            <textarea class="form-textarea" id="new-profile-bio" placeholder="Cerita singkat tentang anggota keluarga..."></textarea>
+            <div class="form-error" id="new-profile-bio-error"></div>
+          </div>
+          <div class="form-group photo-upload" id="add-photo-group">
+            <label class="form-label" for="new-profile-photo">Foto</label>
+            <div class="photo-upload-controls">
+              <div class="photo-preview" id="add-photo-preview">Foto</div>
+              <div class="photo-upload-input">
+                <input type="file" class="form-input" id="new-profile-photo" accept="image/*">
+                <p class="rel-edit-hint">Pilih foto JPG/PNG. Maksimal 2MB.</p>
+                <div class="form-error" id="new-profile-photo-error"></div>
+              </div>
+              <button type="button" class="photo-upload-remove" id="add-photo-remove" style="display: none;">Hapus</button>
+            </div>
+          </div>
+          <div class="form-error" id="add-profile-general-error"></div>
+          <button type="submit" class="form-button" id="add-profile-submit">Tambah Anggota</button>
+        </form>
+      </div>
+    </article>
+  </div>
+
   <div class="live-region" id="live-region" aria-live="polite" aria-atomic="true"></div>
   <noscript>
     <p style="padding: 24px; font-family: sans-serif;">Aktifkan JavaScript untuk melihat silsilah keluarga Trah Sukata.</p>
   </noscript>
 
-  <script>
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbx0op_bOwexDCV0SQBzb8LWRUwBQmrfPFvPav6T4IGrDP9PvS6OdnG8rSXWL180FZniYQ/exec";
-    const REQUEST_TIMEOUT_MS = 20000;
-    const BANNER_STORAGE_KEY = "trah-sukata-instruction-dismissed";
-    const genderMap = {
-      M: "Laki-laki",
-      F: "Perempuan",
-      "Laki-laki": "Laki-laki",
-      Perempuan: "Perempuan",
-      male: "Laki-laki",
-      female: "Perempuan"
-    };
-
-    const elements = {
-      stage: document.getElementById("tree-stage"),
-      tree: document.getElementById("tree"),
-      treeState: document.getElementById("tree-state"),
-      asyncNote: document.getElementById("async-note"),
-      memberCount: document.getElementById("member-count"),
-      lastUpdated: document.getElementById("last-updated"),
-      banner: document.getElementById("instruction-banner"),
-      bannerClose: document.getElementById("instruction-close"),
-      helpButton: document.getElementById("help-button"),
-      listButton: document.getElementById("list-button"),
-      memberDialog: document.getElementById("member-dialog"),
-      memberDialogCard: document.querySelector("#member-dialog .dialog-card"),
-      memberDialogClose: document.getElementById("member-dialog-close"),
-      memberDialogTitle: document.getElementById("member-dialog-title"),
-      memberDialogMeta: document.getElementById("member-dialog-meta"),
-      profileAvatar: document.getElementById("profile-avatar"),
-      memberDialogContent: document.getElementById("member-dialog-content"),
-      memberListDialog: document.getElementById("member-list-dialog"),
-      memberListClose: document.getElementById("member-list-close"),
-      memberListSearch: document.getElementById("member-list-search"),
-      memberListResults: document.getElementById("member-list-results"),
-      memberListContent: document.getElementById("member-list-content"),
-      memberListEmpty: document.getElementById("member-list-empty"),
-      liveRegion: document.getElementById("live-region")
-    };
-
-    const runtime = {
-      status: "loading",
-      nodes: [],
-      searchResults: [],
-      searchActiveIndex: -1,
-      searchQuery: "",
-      selectedPerson: null,
-      activeDialog: null,
-      familyTree: null,
-      lastFocusedElement: null,
-      activeController: null,
-      statusObserver: null,
-      requestId: 0
-    };
-
-    function safeValue(value, fallback = "Belum dicatat") {
-      if (value === null || value === undefined) return fallback;
-      const text = String(value).trim();
-      return text || fallback;
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function processFoto(url) {
-      if (typeof url !== "string" || !url.trim()) return "";
-      try {
-        const parsed = new URL(url.trim(), window.location.href);
-        return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
-      } catch (error) {
-        return "";
-      }
-    }
-
-    function getDisplayName(person) {
-      return safeValue(person && (person.nama_panggilan || person.nama_lengkap || person.name), "Belum dicatat");
-    }
-
-    function getInitials(name) {
-      const words = safeValue(name, "?").split(/\s+/).filter(Boolean);
-      if (!words.length) return "?";
-      return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase();
-    }
-
-    function formatGender(value) {
-      return genderMap[value] || safeValue(value);
-    }
-
-    function formatLifespan(person) {
-      const birth = safeValue(person && person.tahun_lahir, "");
-      const death = safeValue(person && person.tahun_wafat, "");
-      if (birth && death) return `${birth} — ${death}`;
-      if (birth) return `${birth} — sekarang`;
-      if (death) return `Wafat ${death}`;
-      return "Belum dicatat";
-    }
-
-    function formatStatus(person) {
-      if (safeValue(person && person.tahun_wafat, "")) return "Sudah berpulang";
-      if (safeValue(person && person.tahun_lahir, "")) return "Masih bersama kita";
-      return "Belum dicatat";
-    }
-
-    function getStatusClass(person) {
-      const status = formatStatus(person);
-      if (status === "Sudah berpulang") return "is-deceased";
-      if (status === "Masih bersama kita") return "is-alive";
-      return "is-unknown";
-    }
-
-    function normalizeSearchText(value) {
-      return String(value || "")
-        .toLocaleLowerCase("id-ID")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .trim();
-    }
-
-    function getMemberSearchText(person) {
-      return normalizeSearchText([
-        getDisplayName(person),
-        person && person.nama_lengkap,
-        person && person.nama_panggilan,
-        person && person.domisili,
-        person && person.tahun_lahir,
-        person && person.tahun_wafat,
-        person && person.usia_saat_ini
-      ].join(" "));
-    }
-
-    function formatSearchCount(count, total, query) {
-      if (!query) return `${total} anggota tersedia`;
-      return `${count} anggota ditemukan`;
-    }
-
-    function normalizePerson(item) {
-      const displayName = safeValue(item.nama_panggilan || item.nama_lengkap, "Belum dicatat");
-      const genderLabel = safeValue(item.gender, "");
-      const person = {
-        id: item.id,
-        pids: item.sid ? [item.sid] : [],
-        fid: item.fid || null,
-        mid: item.mid || null,
-        name: displayName,
-        gender: genderLabel === "F" || genderLabel === "Perempuan" ? "female" : "male",
-        gender_label: genderLabel,
-        img: processFoto(item.foto),
-        nama_lengkap: item.nama_lengkap,
-        nama_panggilan: item.nama_panggilan,
-        domisili: item.domisili_terakhir,
-        tahun_lahir: item.tahun_lahir,
-        usia_saat_ini: item.usia_saat_ini,
-        tahun_wafat: item.tahun_wafat,
-        usia_saat_wafat: item.usia_saat_wafat,
-        nama_bapak: item.nama_bapak,
-        nama_ibu: item.nama_ibu,
-        nama_pasangan: item.pasangan
-      };
-
-      return {
-        ...person,
-        initials: getInitials(displayName),
-        node_meta: formatLifespan(person),
-        node_status: formatStatus(person)
-      };
-    }
-
-    function announce(message) {
-      elements.liveRegion.textContent = "";
-      window.setTimeout(() => {
-        elements.liveRegion.textContent = message;
-      }, 20);
-    }
-
-    function avatarMarkup(person, className = "profile-avatar") {
-      const genderClass = person && person.gender === "female" ? `${className}--female` : "";
-      const initials = escapeHtml(getInitials(getDisplayName(person)));
-      const image = person && person.img
-        ? `<img src="${escapeHtml(person.img)}" alt="" loading="lazy">`
-        : initials;
-      return `<div class="${className} ${genderClass}" aria-hidden="true">${image}</div>`;
-    }
-
-    function renderState(status, detail = "") {
-      runtime.status = status;
-      elements.stage.classList.toggle("is-loading", status === "loading");
-      elements.stage.classList.toggle("is-empty", status === "empty");
-      elements.stage.classList.toggle("is-error", status === "error");
-      elements.tree.setAttribute("aria-hidden", status !== "ready" ? "true" : "false");
-      elements.asyncNote.hidden = status !== "loading";
-
-      if (status === "ready") {
-        elements.treeState.hidden = true;
-        elements.memberCount.textContent = `${runtime.nodes.length} anggota`;
-        elements.lastUpdated.innerHTML = `<i class="ti ti-refresh" aria-hidden="true"></i><span>Terakhir diperbarui hari ini</span>`;
-        elements.listButton.disabled = runtime.nodes.length === 0;
-        return;
-      }
-
-      elements.treeState.hidden = false;
-      elements.listButton.disabled = true;
-
-      const states = {
-        loading: {
-          className: "state-card--loading",
-          icon: "ti-tree",
-          title: "Menyiapkan silsilah keluarga…",
-          description: "Kami sedang membuka catatan keluarga. Data akan muncul sebentar lagi.",
-          action: ""
-        },
-        empty: {
-          className: "state-card--empty",
-          icon: "ti-users-minus",
-          title: "Data keluarga belum tersedia.",
-          description: "Belum ada catatan keluarga yang dapat ditampilkan saat ini.",
-          action: `<button class="state-action" type="button" data-state-action="retry"><i class="ti ti-refresh" aria-hidden="true"></i>Muat ulang</button>`
-        },
-        error: {
-          className: "state-card--error",
-          icon: "ti-wifi-off",
-          title: "Koneksi terputus. Mari kita coba lagi.",
-          description: detail || "Gagal memuat data keluarga. Periksa koneksi internet Anda lalu coba lagi.",
-          action: `<button class="state-action" type="button" data-state-action="retry"><i class="ti ti-refresh" aria-hidden="true"></i>Muat ulang</button>`
-        }
-      }[status];
-
-      elements.memberCount.textContent = status === "loading" ? "Menyiapkan data" : "Belum tersedia";
-      elements.lastUpdated.innerHTML = `<i class="ti ti-refresh" aria-hidden="true"></i><span>${status === "loading" ? "Menyiapkan silsilah" : "Belum dapat diperbarui"}</span>`;
-
-      const skeleton = status === "loading"
-        ? `<div class="state-skeleton" aria-hidden="true"><span class="skeleton-node"></span><span class="skeleton-node"></span><span class="skeleton-node"></span></div>`
-        : "";
-
-      elements.treeState.innerHTML = `
-        <div class="state-card ${states.className}">
-          ${skeleton}
-          <div class="state-icon" aria-hidden="true"><i class="ti ${states.icon}"></i></div>
-          <h2 class="state-title">${states.title}</h2>
-          <p class="state-description">${states.description}</p>
-          ${states.action}
-        </div>
-      `;
-
-      const retryButton = elements.treeState.querySelector('[data-state-action="retry"]');
-      if (retryButton) retryButton.addEventListener("click", loadFamily);
-    }
-
-    function destroyFamilyTree() {
-      if (runtime.statusObserver) {
-        runtime.statusObserver.disconnect();
-        runtime.statusObserver = null;
-      }
-      if (runtime.familyTree && typeof runtime.familyTree.destroy === "function") {
-        try {
-          runtime.familyTree.destroy();
-        } catch (error) {
-          console.warn("FamilyTree tidak dapat dibersihkan sepenuhnya.", error);
-        }
-      }
-      runtime.familyTree = null;
-      elements.tree.innerHTML = "";
-    }
-
-    function hideFamilyTreeChrome() {
-      elements.tree.querySelectorAll('[class*="toolbar"], [class*="controlbar"], [class*="control-bar"]').forEach((element) => {
-        element.setAttribute("aria-hidden", "true");
-        element.style.display = "none";
-      });
-    }
-
-    function applyStatusClasses() {
-      const peopleById = new Map(runtime.nodes.map((person) => [String(person.id), person]));
-      elements.tree.querySelectorAll("[data-n-id]").forEach((nodeElement) => {
-        const person = peopleById.get(String(nodeElement.dataset.nId));
-        nodeElement.classList.remove("is-alive", "is-deceased", "is-unknown");
-        nodeElement.classList.add(getStatusClass(person));
-      });
-    }
-
-    function observeStatusClasses() {
-      if (runtime.statusObserver) runtime.statusObserver.disconnect();
-      if (typeof MutationObserver === "undefined") return;
-      runtime.statusObserver = new MutationObserver(() => applyStatusClasses());
-      runtime.statusObserver.observe(elements.tree, { childList: true, subtree: true });
-    }
-
-    function registerAlamCardTemplate() {
-      if (FamilyTree.templates.alamCard) return;
-
-      const widthAttribute = FamilyTree.attr && FamilyTree.attr.width ? FamilyTree.attr.width : "data-width";
-      const menuAttribute = FamilyTree.attr && FamilyTree.attr.control_node_menu_id
-        ? FamilyTree.attr.control_node_menu_id
-        : "data-ctrl-n-menu-id";
-      const alamCard = Object.assign({}, FamilyTree.templates.base);
-
-      alamCard.size = [240, 112];
-      alamCard.padding = [18, 18, 18, 18];
-      alamCard.defs = `${FamilyTree.templates.base.defs}
-        <clipPath id="alam_card_img"><rect x="18" y="24" width="64" height="64" rx="16" ry="16"></rect></clipPath>
-        <g id="alam_node_menu" style="cursor:pointer;">
-          <rect x="0" y="0" width="26" height="26" rx="10" fill="#F1FAF4"></rect>
-          <circle cx="7" cy="13" r="2" fill="#2E8B57"></circle>
-          <circle cx="13" cy="13" r="2" fill="#2E8B57"></circle>
-          <circle cx="19" cy="13" r="2" fill="#2E8B57"></circle>
-        </g>`;
-      alamCard.node = `
-        <g class="alam-card">
-          <rect class="alam-card-surface" x="0" y="0" width="{w}" height="{h}" rx="16" ry="16" fill="#FFFFFF" stroke="#DDEBE2" stroke-width="1.5"></rect>
-          <rect class="alam-card-accent" x="0" y="0" width="6" height="{h}" rx="3" ry="3" fill="#2E8B57"></rect>
-          <rect class="alam-card-avatar-well" x="18" y="24" width="64" height="64" rx="16" ry="16" fill="#E6F3EA"></rect>
-        </g>`;
-      alamCard.field_0 = `<text class="alam-card-name" ${widthAttribute}="130" style="font-family: Outfit, sans-serif;font-size:18px;font-weight:700;" fill="#1F4933" x="98" y="43" text-anchor="start">{val}</text>`;
-      alamCard.field_1 = `<text class="alam-card-meta" ${widthAttribute}="132" style="font-family: 'Atkinson Hyperlegible', sans-serif;font-size:14px;" fill="#668071" x="98" y="66" text-anchor="start">{val}</text>`;
-      alamCard.field_2 = `<text class="alam-card-status" ${widthAttribute}="132" style="font-family: 'Atkinson Hyperlegible', sans-serif;font-size:12px;font-weight:700;" fill="#246B43" x="98" y="89" text-anchor="start">{val}</text>`;
-      alamCard.field_3 = `<text class="alam-card-initials" style="font-family: Outfit, sans-serif;font-size:20px;font-weight:700;" fill="#246B43" x="50" y="62" text-anchor="middle">{val}</text>`;
-      alamCard.img_0 = `<image class="alam-card-avatar-image" preserveAspectRatio="xMidYMid slice" clip-path="url(#alam_card_img)" xlink:href="{val}" x="18" y="24" width="64" height="64"></image>`;
-      alamCard.nodeMenuButton = `<use x="207" y="13" ${menuAttribute}="{id}" xlink:href="#alam_node_menu"/>`;
-
-      FamilyTree.templates.alamCard = alamCard;
-      FamilyTree.templates.alamCard_male = Object.assign({}, alamCard);
-      FamilyTree.templates.alamCard_female = Object.assign({}, alamCard);
-    }
-
-    function initFamilyTree() {
-      if (typeof FamilyTree === "undefined") {
-        throw new Error("Pohon keluarga belum siap digunakan.");
-      }
-
-      registerAlamCardTemplate();
-
-      runtime.familyTree = new FamilyTree(elements.tree, {
-        template: "alamCard",
-        mode: "light",
-        enableSearch: false,
-        nodeMouseClick: FamilyTree.action.none,
-        mouseWheel: FamilyTree.action.zoom,
-        pinch: true,
-        scaleInitial: window.innerWidth <= 640 ? 0.52 : 0.68,
-        orientation: FamilyTree.orientation.left,
-        nodeBinding: {
-          field_0: "name",
-          field_1: "node_meta",
-          field_2: "node_status",
-          field_3: "initials",
-          img_0: "img"
-        },
-        nodeMenu: {
-          details: {
-            text: "Detail anggota",
-            onClick(nodeId) {
-              showDetailModal(runtime.nodes.find((person) => String(person.id) === String(nodeId)));
-            }
-          }
-        }
-      });
-
-      if (typeof runtime.familyTree.onNodeClick === "function") {
-        runtime.familyTree.onNodeClick((args) => {
-          if (args && args.node) showDetailModal(args.node);
-        });
-      }
-    }
-
-    function callTreeMethod(action, message) {
-      if (!runtime.familyTree) {
-        announce("Data keluarga belum siap dijelajahi.");
-        return;
-      }
-
-      if (action === "zoom-in" && typeof runtime.familyTree.zoom === "function") {
-        runtime.familyTree.zoom(true);
-      } else if (action === "zoom-out" && typeof runtime.familyTree.zoom === "function") {
-        runtime.familyTree.zoom(false);
-      } else if (action === "fit" && typeof runtime.familyTree.fit === "function") {
-        runtime.familyTree.fit();
-      } else {
-        announce("Geser kanvas atau gunakan cubit layar untuk menjelajahi pohon.");
-        return;
-      }
-
-      announce(message);
-    }
-
-    function detailValue(label, value) {
-      return `
-        <div class="detail-item">
-          <span class="detail-label">${escapeHtml(label)}</span>
-          <strong class="detail-value" title="${escapeHtml(safeValue(value))}">${escapeHtml(safeValue(value))}</strong>
-        </div>
-      `;
-    }
-
-    function familyValue(label, value) {
-      return `
-        <li>
-          <span class="family-list-label">${escapeHtml(label)}</span>
-          <strong class="family-list-value">${escapeHtml(safeValue(value))}</strong>
-        </li>
-      `;
-    }
-
-    function resolvePerson(person) {
-      if (!person) return null;
-      const match = runtime.nodes.find((node) => String(node.id) === String(person.id));
-      return match || person;
-    }
-
-    function renderMemberList(query = "") {
-      runtime.searchQuery = query;
-      runtime.searchResults = runtime.nodes.filter((person) => {
-        const normalizedQuery = normalizeSearchText(query);
-        return !normalizedQuery || getMemberSearchText(person).includes(normalizedQuery);
-      });
-      runtime.searchActiveIndex = -1;
-      elements.memberListSearch.value = query;
-      elements.memberListSearch.removeAttribute("aria-activedescendant");
-      elements.memberListResults.textContent = formatSearchCount(runtime.searchResults.length, runtime.nodes.length, normalizeSearchText(query));
-      elements.memberListEmpty.hidden = runtime.searchResults.length !== 0;
-      elements.memberListContent.hidden = runtime.searchResults.length === 0;
-
-      if (!runtime.searchResults.length) {
-        elements.memberListContent.innerHTML = "";
-        return;
-      }
-
-      elements.memberListContent.innerHTML = runtime.searchResults.map((person, index) => `
-        <button
-          class="member-list-item"
-          id="member-result-${index}"
-          type="button"
-          role="option"
-          aria-selected="false"
-          data-member-index="${index}"
-          aria-label="Lihat detail ${escapeHtml(getDisplayName(person))}"
-        >
-          ${avatarMarkup(person, "list-avatar")}
-          <span>
-            <strong class="member-list-name">${escapeHtml(getDisplayName(person))}</strong>
-            <small class="member-list-meta">${escapeHtml(formatLifespan(person))} · ${escapeHtml(safeValue(person.domisili, "Domisili belum dicatat"))}</small>
-          </span>
-          <i class="ti ti-chevron-right" aria-hidden="true"></i>
+  <div class="dialog-backdrop" id="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" hidden>
+    <article class="dialog-card" tabindex="-1" style="max-width: min(100%, 420px);">
+      <header class="dialog-heading" style="padding: var(--space-4);">
+        <h2 id="confirm-dialog-title" style="margin: 0; font-family: var(--font-heading); font-size: 18px; font-weight: 700; color: var(--heading);">Konfirmasi</h2>
+        <button class="dialog-close" id="confirm-dialog-close" type="button" aria-label="Tutup konfirmasi">
+          <i class="ti ti-x" aria-hidden="true"></i>
         </button>
-      `).join("");
+      </header>
+      <div class="dialog-content">
+        <p id="confirm-dialog-message" style="margin: 0; color: var(--ink); font-size: 15px; line-height: 1.5;"></p>
+      </div>
+      <footer class="dialog-footer" style="justify-content: flex-end; gap: var(--space-3);">
+        <button type="button" class="auth-button" id="confirm-dialog-cancel">Batal</button>
+        <button type="button" class="form-button" id="confirm-dialog-ok" style="background: var(--danger-ink);">Ya, Lanjutkan</button>
+      </footer>
+    </article>
+  </div>
 
-      elements.memberListContent.querySelectorAll("[data-member-index]").forEach((button) => {
-        button.addEventListener("click", () => selectMemberResult(Number(button.dataset.memberIndex)));
-      });
-    }
-
-    function updateSearchActiveResult(index) {
-      if (!runtime.searchResults.length) return;
-      const total = runtime.searchResults.length;
-      runtime.searchActiveIndex = ((index % total) + total) % total;
-      const resultButtons = [...elements.memberListContent.querySelectorAll("[data-member-index]")];
-
-      resultButtons.forEach((button, buttonIndex) => {
-        const isActive = buttonIndex === runtime.searchActiveIndex;
-        button.classList.toggle("is-keyboard-active", isActive);
-        button.setAttribute("aria-selected", String(isActive));
-      });
-
-      const activeButton = resultButtons[runtime.searchActiveIndex];
-      if (!activeButton) return;
-      elements.memberListSearch.setAttribute("aria-activedescendant", activeButton.id);
-      activeButton.scrollIntoView({ block: "nearest" });
-      elements.memberListResults.textContent = `${formatSearchCount(runtime.searchResults.length, runtime.nodes.length, runtime.searchQuery)} · Gunakan Enter untuk memilih`;
-    }
-
-    function onSearchKeydown(event) {
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        updateSearchActiveResult(runtime.searchActiveIndex + 1);
-        return;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        updateSearchActiveResult(runtime.searchActiveIndex <= 0 ? runtime.searchResults.length - 1 : runtime.searchActiveIndex - 1);
-        return;
-      }
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-        if (runtime.searchActiveIndex >= 0) {
-          selectMemberResult(runtime.searchActiveIndex);
-        } else if (runtime.searchResults.length === 1) {
-          selectMemberResult(0);
-        } else if (runtime.searchResults.length > 1) {
-          announce("Gunakan tombol panah untuk memilih anggota.");
-        }
-      }
-    }
-
-    function focusMember(person, returnTarget) {
-      const resolvedPerson = resolvePerson(person);
-      if (!resolvedPerson) return;
-      const onCentered = () => {
-        announce("Anggota dipusatkan di pohon keluarga.");
-        showDetailModal(resolvedPerson, returnTarget);
-      };
-
-      if (runtime.familyTree && typeof runtime.familyTree.center === "function") {
-        try {
-          runtime.familyTree.center(resolvedPerson.id, {
-            horizontal: true,
-            vertical: true
-          }, onCentered);
-        } catch (error) {
-          onCentered();
-        }
-      } else {
-        onCentered();
-      }
-    }
-
-    function selectMemberResult(index) {
-      const person = runtime.searchResults[index];
-      if (!person) return;
-      const returnTarget = runtime.lastFocusedElement || elements.listButton;
-      closeDialog("list", { restoreFocus: false });
-      focusMember(person, returnTarget);
-    }
-
-    function showDetailModal(person, returnTarget = document.activeElement) {
-      person = resolvePerson(person);
-      if (!person) return;
-      runtime.selectedPerson = person;
-      if (returnTarget) runtime.lastFocusedElement = returnTarget;
-      runtime.activeDialog = "member";
-
-      const displayName = getDisplayName(person);
-      const gender = formatGender(person.gender_label || person.gender);
-      const location = safeValue(person.domisili, "Domisili belum dicatat");
-      const lifespan = formatLifespan(person);
-      const familyRows = [
-        ["Nama bapak", person.nama_bapak],
-        ["Nama ibu", person.nama_ibu],
-        ["Pasangan", person.nama_pasangan]
-      ];
-
-      elements.profileAvatar.outerHTML = avatarMarkup(person, "profile-avatar");
-      elements.profileAvatar = document.querySelector("#member-dialog .profile-avatar");
-      elements.memberDialogTitle.textContent = displayName;
-      elements.memberDialogMeta.innerHTML = `<span>${escapeHtml(gender)}</span><span>${escapeHtml(location)}</span><span>${escapeHtml(lifespan)}</span>`;
-      elements.memberDialogContent.innerHTML = `
-        <section class="dialog-section" aria-labelledby="about-person-title">
-          <h3 class="dialog-section-title" id="about-person-title">Tentang beliau</h3>
-          <div class="detail-grid">
-            ${detailValue("Nama lengkap", person.nama_lengkap)}
-            ${detailValue("Nama panggilan", person.nama_panggilan)}
-            ${detailValue("Domisili", person.domisili)}
-            ${detailValue("Status", formatStatus(person))}
-            ${detailValue("Tahun lahir", person.tahun_lahir)}
-            ${detailValue("Usia saat ini", person.usia_saat_ini)}
-            ${detailValue("Tahun wafat", person.tahun_wafat)}
-            ${detailValue("Usia saat wafat", person.usia_saat_wafat)}
-          </div>
-        </section>
-        <section class="dialog-section" aria-labelledby="family-person-title">
-          <h3 class="dialog-section-title" id="family-person-title">Keluarga</h3>
-          <ul class="family-list">
-            ${familyRows.map(([label, value]) => familyValue(label, value)).join("")}
-          </ul>
-        </section>
-      `;
-
-      elements.memberDialog.hidden = false;
-      elements.memberDialog.setAttribute("aria-label", `Detail ${displayName}`);
-      elements.memberDialogClose.focus({ preventScroll: true });
-      announce(`Detail ${displayName} terbuka.`);
-    }
-
-    function getFocusable(container) {
-      return [...container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
-        .filter((element) => !element.disabled && element.offsetParent !== null);
-    }
-
-    function closeDialog(dialogName, { restoreFocus = true } = {}) {
-      const dialog = dialogName === "list" ? elements.memberListDialog : elements.memberDialog;
-      if (!dialog || dialog.hidden) return;
-      dialog.hidden = true;
-      runtime.activeDialog = null;
-      if (restoreFocus) {
-        const target = runtime.lastFocusedElement && typeof runtime.lastFocusedElement.focus === "function"
-          ? runtime.lastFocusedElement
-          : elements.listButton;
-        target.focus({ preventScroll: true });
-      }
-      announce(dialogName === "list" ? "Daftar anggota ditutup." : "Detail anggota ditutup.");
-    }
-
-    function openMemberList() {
-      if (!runtime.nodes.length) return;
-      runtime.lastFocusedElement = document.activeElement;
-      runtime.activeDialog = "list";
-      elements.memberListDialog.hidden = false;
-      renderMemberList();
-      elements.memberListSearch.focus({ preventScroll: true });
-      announce("Daftar anggota terbuka.");
-    }
-
-    function revealInstructions() {
-      elements.banner.hidden = false;
-      try {
-        window.sessionStorage.removeItem(BANNER_STORAGE_KEY);
-      } catch (error) {
-        // Storage may be unavailable in private browsing; the banner still works.
-      }
-      elements.bannerClose.focus({ preventScroll: true });
-      announce("Petunjuk penggunaan ditampilkan.");
-    }
-
-    async function loadFamily() {
-      const requestId = ++runtime.requestId;
-      if (runtime.activeController) runtime.activeController.abort();
-      runtime.activeController = new AbortController();
-      destroyFamilyTree();
-      runtime.nodes = [];
-      renderState("loading");
-
-      const timeoutId = window.setTimeout(() => runtime.activeController.abort(), REQUEST_TIMEOUT_MS);
-      try {
-        const response = await fetch(ENDPOINT, { signal: runtime.activeController.signal });
-        if (!response.ok) throw new Error(`Permintaan data gagal (${response.status}).`);
-        const data = await response.json();
-        if (!Array.isArray(data)) throw new Error("Format data keluarga tidak sesuai.");
-        if (requestId !== runtime.requestId) return;
-
-        runtime.nodes = data.map(normalizePerson).filter((person) => person.id !== undefined && person.id !== null);
-        if (!runtime.nodes.length) {
-          renderState("empty");
-          announce("Belum ada data keluarga yang dapat ditampilkan.");
-          return;
-        }
-
-        initFamilyTree();
-        observeStatusClasses();
-        runtime.familyTree.load(runtime.nodes);
-        applyStatusClasses();
-        hideFamilyTreeChrome();
-        renderState("ready");
-        announce(`${runtime.nodes.length} anggota keluarga siap dijelajahi.`);
-      } catch (error) {
-        if (requestId !== runtime.requestId) return;
-        const message = error && error.name === "AbortError"
-          ? "Pemuatan data terlalu lama. Periksa koneksi internet Anda lalu coba lagi."
-          : "Gagal memuat data keluarga. Periksa koneksi internet Anda lalu coba lagi.";
-        renderState("error", message);
-        console.error("Trah Sukata: gagal memuat data keluarga.", error);
-      } finally {
-        window.clearTimeout(timeoutId);
-      }
-    }
-
-    elements.bannerClose.addEventListener("click", () => {
-      elements.banner.hidden = true;
-      try {
-        window.sessionStorage.setItem(BANNER_STORAGE_KEY, "true");
-      } catch (error) {
-        // Storage may be unavailable; dismiss for the current view anyway.
-      }
-      announce("Petunjuk ditutup.");
-    });
-
-    elements.helpButton.addEventListener("click", revealInstructions);
-    elements.listButton.addEventListener("click", openMemberList);
-    elements.memberListSearch.addEventListener("input", (event) => {
-      renderMemberList(event.target.value);
-    });
-    elements.memberListSearch.addEventListener("keydown", onSearchKeydown);
-    elements.memberDialogClose.addEventListener("click", () => closeDialog("member"));
-    elements.memberListClose.addEventListener("click", () => closeDialog("list"));
-
-    elements.memberDialog.addEventListener("click", (event) => {
-      if (event.target === elements.memberDialog) closeDialog("member");
-    });
-
-    elements.memberListDialog.addEventListener("click", (event) => {
-      if (event.target === elements.memberListDialog) closeDialog("list");
-    });
-
-    document.querySelectorAll("[data-tree-action]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const action = button.dataset.treeAction;
-        if (action === "zoom-in") callTreeMethod(action, "Pohon diperbesar.");
-        if (action === "zoom-out") callTreeMethod(action, "Pohon diperkecil.");
-        if (action === "fit") callTreeMethod(action, "Pohon dipusatkan.");
-      });
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && runtime.activeDialog) {
-        closeDialog(runtime.activeDialog);
-        return;
-      }
-
-      if (event.key !== "Tab" || !runtime.activeDialog) return;
-      const dialog = runtime.activeDialog === "list" ? elements.memberListDialog : elements.memberDialog;
-      const focusable = getFocusable(dialog);
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    });
-
-    try {
-      if (window.sessionStorage.getItem(BANNER_STORAGE_KEY) === "true") elements.banner.hidden = true;
-    } catch (error) {
-      // Keep the instruction visible if storage is unavailable.
-    }
-
-    loadFamily();
-  </script>
+  <script src="config.js"></script>
+  <script src="utils.js"></script>
+  <script src="tree.js"></script>
+  <script src="dialogs.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
+
+
+

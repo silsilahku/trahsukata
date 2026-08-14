@@ -1,0 +1,13 @@
+# AI coding assistant workspace folders
+.kilo/
+.kombai/
+node_modules/
+.env
+.env.local
+# Never commit local Supabase credentials (copy from config.example.js)
+config.js
+*.log
+.DS_Store
+Thumbs.db
+dist/
+build/
