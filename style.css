@@ -1868,11 +1868,13 @@
       }
 
       .tree-controls {
+        position: fixed;
         right: 10px;
         bottom: 10px;
         left: 10px;
         justify-content: center;
         transform: none;
+        touch-action: manipulation;
       }
 
       .tree-control {
