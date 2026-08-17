@@ -795,7 +795,7 @@ class FamilyTree {
       image.setAttribute("class", "alam-card-avatar-image");
       image.setAttribute("preserveAspectRatio", "xMidYMid slice");
       image.setAttribute("clip-path", "url(#alam_card_img)");
-      image.setAttribute("href", escapeHtml(node.img));
+      image.setAttribute("href", node.img);
       image.setAttribute("x", "18");
       image.setAttribute("y", "24");
       image.setAttribute("width", "64");
@@ -809,7 +809,7 @@ class FamilyTree {
       text.setAttribute("x", "50");
       text.setAttribute("y", "62");
       text.setAttribute("text-anchor", "middle");
-      text.textContent = escapeHtml(initials);
+      text.textContent = initials;
       nodeG.appendChild(text);
     }
 
@@ -820,7 +820,7 @@ class FamilyTree {
     nameText.setAttribute("x", "98");
     nameText.setAttribute("y", "43");
     nameText.setAttribute("text-anchor", "start");
-    nameText.textContent = escapeHtml(truncateText(node.name, 14));
+    nameText.textContent = truncateText(node.name, 14);
     nodeG.appendChild(nameText);
 
     const statusText = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -830,7 +830,7 @@ class FamilyTree {
     statusText.setAttribute("x", "98");
     statusText.setAttribute("y", "66");
     statusText.setAttribute("text-anchor", "start");
-    statusText.textContent = escapeHtml(truncateText(node.node_status, 20));
+    statusText.textContent = truncateText(node.node_status, 20);
     nodeG.appendChild(statusText);
 
     const birthYear = node.tahun_lahir;
@@ -854,7 +854,7 @@ class FamilyTree {
     metaText.setAttribute("x", "98");
     metaText.setAttribute("y", "89");
     metaText.setAttribute("text-anchor", "start");
-    metaText.textContent = escapeHtml(truncateText(ageInfo, 18));
+    metaText.textContent = truncateText(ageInfo, 18);
     nodeG.appendChild(metaText);
 
     nodeG.addEventListener("click", (e) => {
