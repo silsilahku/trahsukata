@@ -96,6 +96,7 @@ class FamilyTree {
 
     // Pointer-based Pan Events
     this.svg.addEventListener("pointerdown", (e) => {
+      if (this.isPinching) return;
       this.isDragging = true;
       this.dragged = false;
       this.dragStart.x = e.clientX - this.translateX;
@@ -105,6 +106,7 @@ class FamilyTree {
     });
 
     this.svg.addEventListener("pointermove", (e) => {
+      if (this.isPinching) return;
       if (!this.isDragging) return;
       const dx = e.clientX - this.dragStart.x;
       const dy = e.clientY - this.dragStart.y;
@@ -200,6 +202,65 @@ class FamilyTree {
 
       this.updateTransform();
     }, { passive: false });
+
+    // Pinch Zoom
+    this.isPinching = false;
+    this.pinchStartDist = 0;
+    this.pinchStartScale = 1;
+    this.pinchStartPointX = 0;
+    this.pinchStartPointY = 0;
+
+    const getTouchDistance = (t1, t2) => {
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    this.svg.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 2) {
+        this.isPinching = true;
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        this.pinchStartDist = getTouchDistance(t1, t2);
+        this.pinchStartScale = this.scale;
+        const rect = this.svg.getBoundingClientRect();
+        const midX = (t1.clientX + t2.clientX) / 2 - rect.left;
+        const midY = (t1.clientY + t2.clientY) / 2 - rect.top;
+        this.pinchStartPointX = (midX - this.translateX) / this.scale;
+        this.pinchStartPointY = (midY - this.translateY) / this.scale;
+      }
+    }, { passive: true });
+
+    this.svg.addEventListener("touchmove", (e) => {
+      if (this.isPinching && e.touches.length === 2) {
+        e.preventDefault();
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const currentDist = getTouchDistance(t1, t2);
+        const scaleRatio = currentDist / this.pinchStartDist;
+        let newScale = this.pinchStartScale * scaleRatio;
+        newScale = Math.max(0.15, Math.min(newScale, 3.0));
+
+        const rect = this.svg.getBoundingClientRect();
+        const midX = (t1.clientX + t2.clientX) / 2 - rect.left;
+        const midY = (t1.clientY + t2.clientY) / 2 - rect.top;
+
+        this.translateX = midX - this.pinchStartPointX * newScale;
+        this.translateY = midY - this.pinchStartPointY * newScale;
+        this.scale = newScale;
+        this.updateTransform();
+      }
+    }, { passive: false });
+
+    this.svg.addEventListener("touchend", (e) => {
+      if (this.isPinching && e.touches.length < 2) {
+        this.isPinching = false;
+      }
+    });
+
+    this.svg.addEventListener("touchcancel", () => {
+      this.isPinching = false;
+    });
   }
 
   updateTransform() {
