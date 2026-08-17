@@ -113,12 +113,12 @@ class FamilyTree {
     const getActivePointers = () => Array.from(this.activePointers.values());
 
     const handlePointerDown = (e) => {
-      this.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      this.activePointers.set(e.pointerId, { id: e.pointerId, x: e.clientX, y: e.clientY });
       if (this.activePointers.size === 1) {
         this.isDragging = true;
         this.dragged = false;
-        this.dragStart.x = e.clientX - this.translateX;
-        this.dragStart.y = e.clientY - this.translateY;
+        this.dragStart.x = e.clientX - (Number.isFinite(this.translateX) ? this.translateX : 0);
+        this.dragStart.y = e.clientY - (Number.isFinite(this.translateY) ? this.translateY : 0);
         this.svg.style.cursor = "grabbing";
         this.svg.setPointerCapture(e.pointerId);
       } else if (this.activePointers.size === 2) {
@@ -126,29 +126,39 @@ class FamilyTree {
         this.isDragging = false;
         this.dragged = false;
         this.svg.style.cursor = "grab";
-        try { this.svg.releasePointerCapture(e.pointerId); } catch (err) {}
+        // Release capture on ALL pointers so multi-touch events are tracked reliably.
+        this.activePointers.forEach((pointer) => {
+          if (pointer && this.svg.hasPointerCapture && this.svg.hasPointerCapture(pointer.id)) {
+            try { this.svg.releasePointerCapture(pointer.id); } catch (err) {}
+          }
+        });
 
         const pointers = getActivePointers();
-        this.pinchStartDist = getPointerDistance(pointers[0], pointers[1]);
-        this.pinchStartScale = this.scale;
+        // Guard against duplicate/zero-distance pointers -> prevents NaN scale.
+        if (pointers.length === 2) {
+          const dist = getPointerDistance(pointers[0], pointers[1]);
+          this.pinchStartDist = dist > 0 ? dist : 0;
+        } else {
+          this.pinchStartDist = 0;
+        }
+        this.pinchStartScale = Number.isFinite(this.scale) && this.scale > 0 ? this.scale : 1;
+        const baseTx = Number.isFinite(this.translateX) ? this.translateX : 0;
+        const baseTy = Number.isFinite(this.translateY) ? this.translateY : 0;
         const rect = this.svg.getBoundingClientRect();
         const midX = (pointers[0].x + pointers[1].x) / 2 - rect.left;
         const midY = (pointers[0].y + pointers[1].y) / 2 - rect.top;
-        this.pinchStartPointX = (midX - this.translateX) / this.scale;
-        this.pinchStartPointY = (midY - this.translateY) / this.scale;
+        this.pinchStartPointX = (midX - baseTx) / this.pinchStartScale;
+        this.pinchStartPointY = (midY - baseTy) / this.pinchStartScale;
         this.pinchStartMidX = midX;
         this.pinchStartMidY = midY;
       }
     };
 
     const handlePointerMove = (e) => {
-      this.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      this.activePointers.set(e.pointerId, { id: e.pointerId, x: e.clientX, y: e.clientY });
       if (this.isPinching && this.activePointers.size === 2) {
         const pointers = getActivePointers();
         const currentDist = getPointerDistance(pointers[0], pointers[1]);
-        const scaleRatio = currentDist / this.pinchStartDist;
-        let newScale = this.pinchStartScale * scaleRatio;
-        newScale = Math.max(0.15, Math.min(newScale, 3.0));
 
         const rect = this.svg.getBoundingClientRect();
         const midX = (pointers[0].x + pointers[1].x) / 2 - rect.left;
@@ -157,10 +167,25 @@ class FamilyTree {
         const dx = midX - this.pinchStartMidX;
         const dy = midY - this.pinchStartMidY;
 
-        this.translateX = midX - this.pinchStartPointX * newScale + dx;
-        this.translateY = midY - this.pinchStartPointY * newScale + dy;
-        this.scale = newScale;
-        this.updateTransform();
+        // Only zoom when we have a valid starting distance (prevents NaN/Infinity).
+        let newScale = this.pinchStartScale;
+        if (this.pinchStartDist > 0 && currentDist > 0 && Number.isFinite(currentDist)) {
+          const scaleRatio = currentDist / this.pinchStartDist;
+          const computed = this.pinchStartScale * scaleRatio;
+          if (Number.isFinite(computed)) {
+            newScale = Math.max(0.15, Math.min(computed, 3.0));
+          }
+        }
+
+        const newTranslateX = midX - this.pinchStartPointX * newScale + dx;
+        const newTranslateY = midY - this.pinchStartPointY * newScale + dy;
+
+        if (Number.isFinite(newScale) && Number.isFinite(newTranslateX) && Number.isFinite(newTranslateY)) {
+          this.scale = newScale;
+          this.translateX = newTranslateX;
+          this.translateY = newTranslateY;
+          this.updateTransform();
+        }
       } else if (this.isDragging && this.activePointers.size === 1) {
         const pointer = getActivePointers()[0];
         const dx = pointer.x - this.dragStart.x;
@@ -170,9 +195,11 @@ class FamilyTree {
           this.dragged = true;
         }
 
-        this.translateX = dx;
-        this.translateY = dy;
-        this.updateTransform();
+        if (Number.isFinite(dx) && Number.isFinite(dy)) {
+          this.translateX = dx;
+          this.translateY = dy;
+          this.updateTransform();
+        }
       }
     };
 
@@ -184,8 +211,14 @@ class FamilyTree {
         this.isDragging = true;
         this.dragged = false;
         const pointer = getActivePointers()[0];
-        this.dragStart.x = pointer.x - this.translateX;
-        this.dragStart.y = pointer.y - this.translateY;
+        if (pointer) {
+          // Re-capture the remaining pointer so pan continues smoothly after pinch.
+          if (this.svg.hasPointerCapture && !this.svg.hasPointerCapture(pointer.id)) {
+            try { this.svg.setPointerCapture(pointer.id); } catch (err) {}
+          }
+          this.dragStart.x = pointer.x - (Number.isFinite(this.translateX) ? this.translateX : 0);
+          this.dragStart.y = pointer.y - (Number.isFinite(this.translateY) ? this.translateY : 0);
+        }
         this.svg.style.cursor = "grabbing";
       } else if (wasPinching && this.activePointers.size < 2) {
         this.isPinching = false;
@@ -278,7 +311,10 @@ class FamilyTree {
 
   updateTransform() {
     if (this.viewport) {
-      this.viewport.setAttribute("transform", `translate(${this.translateX}, ${this.translateY}) scale(${this.scale})`);
+      const tx = Number.isFinite(this.translateX) ? this.translateX : 0;
+      const ty = Number.isFinite(this.translateY) ? this.translateY : 0;
+      const s = Number.isFinite(this.scale) && this.scale > 0 ? this.scale : 1;
+      this.viewport.setAttribute("transform", `translate(${tx}, ${ty}) scale(${s})`);
     }
   }
 
@@ -293,15 +329,16 @@ class FamilyTree {
   }
 
   zoom(zoomIn) {
+    const baseScale = Number.isFinite(this.scale) && this.scale > 0 ? this.scale : 1;
     const factor = zoomIn ? 1.3 : 0.77;
-    const newScale = Math.max(0.15, Math.min(this.scale * factor, 3.0));
+    const newScale = Math.max(0.15, Math.min(baseScale * factor, 3.0));
 
     const rect = this.svg.getBoundingClientRect();
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const pointX = (centerX - this.translateX) / this.scale;
-    const pointY = (centerY - this.translateY) / this.scale;
+    const pointX = (centerX - this.translateX) / baseScale;
+    const pointY = (centerY - this.translateY) / baseScale;
 
     this.translateX = centerX - pointX * newScale;
     this.translateY = centerY - pointY * newScale;
