@@ -590,6 +590,62 @@
       stroke-width: var(--tree-connector-width) !important;
     }
 
+    .zoom-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      max-width: min(90%, 360px);
+      padding: 12px 16px;
+      color: var(--heading);
+      background: rgba(255, 255, 255, .97);
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+      font-family: var(--font-heading);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.35;
+      text-align: left;
+      opacity: 0;
+      transform: translate(-50%, calc(-50% + 8px));
+      transition: opacity 200ms ease, transform 200ms ease;
+      pointer-events: none;
+    }
+
+    .zoom-hint::before {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      background: var(--surface);
+      border-left: 1px solid var(--line-strong);
+      border-top: 1px solid var(--line-strong);
+      content: '';
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .zoom-hint.is-visible {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+
+    .zoom-hint i {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      color: var(--primary-strong);
+      background: var(--primary-soft);
+      border-radius: 10px;
+      font-size: 18px;
+    }
+
     #tree .alam-card {
       filter: drop-shadow(0 3px 5px var(--node-shadow));
     }

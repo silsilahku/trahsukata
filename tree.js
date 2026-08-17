@@ -126,6 +126,7 @@ class FamilyTree {
         this.isDragging = false;
         this.dragged = false;
         this.svg.style.cursor = "grab";
+        this.showZoomHint();
         // Release capture on ALL pointers so multi-touch events are tracked reliably.
         this.activePointers.forEach((pointer) => {
           if (pointer && this.svg.hasPointerCapture && this.svg.hasPointerCapture(pointer.id)) {
@@ -326,6 +327,27 @@ class FamilyTree {
         this.viewport.classList.remove("viewport-transition");
       }, 250);
     }
+  }
+
+  showZoomHint() {
+    if (!this.container) return;
+    // Remove any existing hint before showing a fresh one.
+    const existing = this.container.querySelector(".zoom-hint");
+    if (existing) existing.remove();
+
+    const hint = document.createElement("div");
+    hint.className = "zoom-hint";
+    hint.setAttribute("role", "status");
+    hint.innerHTML = `<i class="ti ti-zoom-in" aria-hidden="true"></i><span>Gunakan tombol Perbesar/Perkecil untuk zoom in / zoom out</span>`;
+    this.container.appendChild(hint);
+
+    requestAnimationFrame(() => hint.classList.add("is-visible"));
+
+    clearTimeout(this._zoomHintTimer);
+    this._zoomHintTimer = setTimeout(() => {
+      hint.classList.remove("is-visible");
+      setTimeout(() => hint.remove(), 200);
+    }, 2800);
   }
 
   zoom(zoomIn) {
