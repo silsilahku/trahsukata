@@ -74,6 +74,7 @@ class FamilyTree {
     this.svg.style.cursor = "grab";
     this.svg.style.userSelect = "none";
     this.svg.style.display = "block";
+    this.svg.style.touchAction = "none";
 
     // Append styles for transitions
     const style = document.createElement("style");

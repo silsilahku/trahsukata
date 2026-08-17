@@ -555,6 +555,14 @@
       transition: opacity 180ms ease;
     }
 
+    /* Let JavaScript pan/zoom handle all touch gestures (1-finger drag & 2-finger pinch).
+       Without this, mobile browsers hijack 1-finger drags as page scrolls. */
+    #tree,
+    #tree svg,
+    #tree svg * {
+      touch-action: none;
+    }
+
     .tree-stage.is-loading #tree,
     .tree-stage.is-empty #tree,
     .tree-stage.is-error #tree {
