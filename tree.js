@@ -94,43 +94,114 @@ class FamilyTree {
     this.svg.appendChild(this.viewport);
     this.container.appendChild(this.svg);
 
-    // Pointer-based Pan Events
-    this.svg.addEventListener("pointerdown", (e) => {
-      if (this.isPinching) return;
-      this.isDragging = true;
-      this.dragged = false;
-      this.dragStart.x = e.clientX - this.translateX;
-      this.dragStart.y = e.clientY - this.translateY;
-      this.svg.style.cursor = "grabbing";
-      this.svg.setPointerCapture(e.pointerId);
-    });
+    // Unified Pointer Events for Pan and Pinch Zoom
+    this.activePointers = new Map();
+    this.pinchStartDist = 0;
+    this.pinchStartScale = 1;
+    this.pinchStartPointX = 0;
+    this.pinchStartPointY = 0;
+    this.pinchStartMidX = 0;
+    this.pinchStartMidY = 0;
 
-    this.svg.addEventListener("pointermove", (e) => {
-      if (this.isPinching) return;
-      if (!this.isDragging) return;
-      const dx = e.clientX - this.dragStart.x;
-      const dy = e.clientY - this.dragStart.y;
-
-      if (Math.abs(dx - this.translateX) > 4 || Math.abs(dy - this.translateY) > 4) {
-        this.dragged = true;
-      }
-
-      this.translateX = dx;
-      this.translateY = dy;
-      this.updateTransform();
-    });
-
-    const stopDragging = (e) => {
-      if (!this.isDragging) return;
-      this.isDragging = false;
-      this.svg.style.cursor = "grab";
-      try {
-        this.svg.releasePointerCapture(e.pointerId);
-      } catch (err) {}
+    const getPointerDistance = (p1, p2) => {
+      const dx = p1.clientX - p2.clientX;
+      const dy = p1.clientY - p2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
     };
 
-    this.svg.addEventListener("pointerup", stopDragging);
-    this.svg.addEventListener("pointercancel", stopDragging);
+    const getActivePointers = () => Array.from(this.activePointers.values());
+
+    const handlePointerDown = (e) => {
+      this.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (this.activePointers.size === 1) {
+        this.isDragging = true;
+        this.dragged = false;
+        this.dragStart.x = e.clientX - this.translateX;
+        this.dragStart.y = e.clientY - this.translateY;
+        this.svg.style.cursor = "grabbing";
+        this.svg.setPointerCapture(e.pointerId);
+      } else if (this.activePointers.size === 2) {
+        this.isPinching = true;
+        this.isDragging = false;
+        this.dragged = false;
+        this.svg.style.cursor = "grab";
+        try { this.svg.releasePointerCapture(e.pointerId); } catch (err) {}
+
+        const pointers = getActivePointers();
+        this.pinchStartDist = getPointerDistance(pointers[0], pointers[1]);
+        this.pinchStartScale = this.scale;
+        const rect = this.svg.getBoundingClientRect();
+        const midX = (pointers[0].x + pointers[1].x) / 2 - rect.left;
+        const midY = (pointers[0].y + pointers[1].y) / 2 - rect.top;
+        this.pinchStartPointX = (midX - this.translateX) / this.scale;
+        this.pinchStartPointY = (midY - this.translateY) / this.scale;
+        this.pinchStartMidX = midX;
+        this.pinchStartMidY = midY;
+      }
+    };
+
+    const handlePointerMove = (e) => {
+      this.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (this.isPinching && this.activePointers.size === 2) {
+        const pointers = getActivePointers();
+        const currentDist = getPointerDistance(pointers[0], pointers[1]);
+        const scaleRatio = currentDist / this.pinchStartDist;
+        let newScale = this.pinchStartScale * scaleRatio;
+        newScale = Math.max(0.15, Math.min(newScale, 3.0));
+
+        const rect = this.svg.getBoundingClientRect();
+        const midX = (pointers[0].x + pointers[1].x) / 2 - rect.left;
+        const midY = (pointers[0].y + pointers[1].y) / 2 - rect.top;
+
+        const dx = midX - this.pinchStartMidX;
+        const dy = midY - this.pinchStartMidY;
+
+        this.translateX = midX - this.pinchStartPointX * newScale + dx;
+        this.translateY = midY - this.pinchStartPointY * newScale + dy;
+        this.scale = newScale;
+        this.updateTransform();
+      } else if (this.isDragging && this.activePointers.size === 1) {
+        const pointer = getActivePointers()[0];
+        const dx = pointer.x - this.dragStart.x;
+        const dy = pointer.y - this.dragStart.y;
+
+        if (Math.abs(dx - this.translateX) > 4 || Math.abs(dy - this.translateY) > 4) {
+          this.dragged = true;
+        }
+
+        this.translateX = dx;
+        this.translateY = dy;
+        this.updateTransform();
+      }
+    };
+
+    const handlePointerUp = (e) => {
+      const wasPinching = this.isPinching;
+      this.activePointers.delete(e.pointerId);
+      if (wasPinching && this.activePointers.size === 1) {
+        this.isPinching = false;
+        this.isDragging = true;
+        this.dragged = false;
+        const pointer = getActivePointers()[0];
+        this.dragStart.x = pointer.x - this.translateX;
+        this.dragStart.y = pointer.y - this.translateY;
+        this.svg.style.cursor = "grabbing";
+      } else if (wasPinching && this.activePointers.size < 2) {
+        this.isPinching = false;
+        this.isDragging = false;
+        this.dragged = false;
+        this.svg.style.cursor = "grab";
+      }
+      if (this.activePointers.size === 0) {
+        this.isDragging = false;
+        this.svg.style.cursor = "grab";
+      }
+    };
+
+    this.svg.addEventListener("pointerdown", handlePointerDown);
+    this.svg.addEventListener("pointermove", handlePointerMove);
+    this.svg.addEventListener("pointerup", handlePointerUp);
+    this.svg.addEventListener("pointercancel", handlePointerUp);
 
     // Node click via event delegation
     this.svg.addEventListener("click", (e) => {
@@ -202,65 +273,6 @@ class FamilyTree {
 
       this.updateTransform();
     }, { passive: false });
-
-    // Pinch Zoom
-    this.isPinching = false;
-    this.pinchStartDist = 0;
-    this.pinchStartScale = 1;
-    this.pinchStartPointX = 0;
-    this.pinchStartPointY = 0;
-
-    const getTouchDistance = (t1, t2) => {
-      const dx = t1.clientX - t2.clientX;
-      const dy = t1.clientY - t2.clientY;
-      return Math.sqrt(dx * dx + dy * dy);
-    };
-
-    this.svg.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 2) {
-        this.isPinching = true;
-        const t1 = e.touches[0];
-        const t2 = e.touches[1];
-        this.pinchStartDist = getTouchDistance(t1, t2);
-        this.pinchStartScale = this.scale;
-        const rect = this.svg.getBoundingClientRect();
-        const midX = (t1.clientX + t2.clientX) / 2 - rect.left;
-        const midY = (t1.clientY + t2.clientY) / 2 - rect.top;
-        this.pinchStartPointX = (midX - this.translateX) / this.scale;
-        this.pinchStartPointY = (midY - this.translateY) / this.scale;
-      }
-    }, { passive: true });
-
-    this.svg.addEventListener("touchmove", (e) => {
-      if (this.isPinching && e.touches.length === 2) {
-        e.preventDefault();
-        const t1 = e.touches[0];
-        const t2 = e.touches[1];
-        const currentDist = getTouchDistance(t1, t2);
-        const scaleRatio = currentDist / this.pinchStartDist;
-        let newScale = this.pinchStartScale * scaleRatio;
-        newScale = Math.max(0.15, Math.min(newScale, 3.0));
-
-        const rect = this.svg.getBoundingClientRect();
-        const midX = (t1.clientX + t2.clientX) / 2 - rect.left;
-        const midY = (t1.clientY + t2.clientY) / 2 - rect.top;
-
-        this.translateX = midX - this.pinchStartPointX * newScale;
-        this.translateY = midY - this.pinchStartPointY * newScale;
-        this.scale = newScale;
-        this.updateTransform();
-      }
-    }, { passive: false });
-
-    this.svg.addEventListener("touchend", (e) => {
-      if (this.isPinching && e.touches.length < 2) {
-        this.isPinching = false;
-      }
-    });
-
-    this.svg.addEventListener("touchcancel", () => {
-      this.isPinching = false;
-    });
   }
 
   updateTransform() {
